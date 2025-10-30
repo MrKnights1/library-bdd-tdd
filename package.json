@@ -5,10 +5,11 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
+    "start": "node server.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:bdd": "cucumber-js",
+    "test:bdd": "cucumber-js --import 'steps/*.js'",
     "test:all": "bun run test && bun run test:bdd"
   },
   "keywords": [

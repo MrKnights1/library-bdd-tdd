@@ -1,6 +1,6 @@
 export default {
   default: {
-    require: ['steps/**/*.js'],
+    import: ['steps/*.js'],
     format: ['progress-bar', 'html:cucumber-report.html'],
     publishQuiet: true
   }

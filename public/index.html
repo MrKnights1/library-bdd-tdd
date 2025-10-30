@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 24px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 32px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-bottom: 24px;
+            color: #333;
+        }
+        .section {
+            margin-bottom: 32px;
+        }
+        .section h2 {
+            margin-bottom: 16px;
+            color: #555;
+            font-size: 18px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            flex: 1;
+            padding: 16px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .books-list {
+            list-style: none;
+        }
+        .book-item {
+            padding: 12px;
+            background-color: #f8f9fa;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Library Management System</h1>
+
+        <div id="message"></div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Your Borrowed Books</div>
+                <div class="stat-value" id="borrowedCount">0</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Add New Book to Library</h2>
+            <div class="form-group">
+                <label for="bookTitle">Book Title</label>
+                <input type="text" id="bookTitle" placeholder="Enter book title">
+            </div>
+            <div class="form-group">
+                <label for="bookCopies">Number of Copies</label>
+                <input type="number" id="bookCopies" min="1" value="1">
+            </div>
+            <button onclick="addBook()">Add Book</button>
+        </div>
+
+        <div class="section">
+            <h2>Available Books</h2>
+            <ul class="books-list" id="booksList"></ul>
+        </div>
+
+        <div class="section">
+            <h2>Borrow a Book</h2>
+            <div class="form-group">
+                <label for="borrowSelect">Select Book</label>
+                <select id="borrowSelect"></select>
+            </div>
+            <button onclick="borrowBook()">Borrow Book</button>
+        </div>
+
+        <div class="section">
+            <h2>Return a Book</h2>
+            <div class="form-group">
+                <label for="returnSelect">Select Book</label>
+                <select id="returnSelect"></select>
+            </div>
+            <button onclick="returnBook()">Return Book</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Library } from '../src/library.js';
+
+        const library = new Library();
+        window.library = library;
+
+        // Add some initial books
+        library.addBook('Clean Code', 3);
+        library.addBook('Refactoring', 2);
+        library.addBook('Design Patterns', 1);
+
+        function showMessage(text, type = 'success') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            setTimeout(() => {
+                messageDiv.textContent = '';
+                messageDiv.className = '';
+            }, 3000);
+        }
+
+        function updateUI() {
+            document.getElementById('borrowedCount').textContent = library.getBorrowedBooksCount();
+
+            const booksList = document.getElementById('booksList');
+            const borrowSelect = document.getElementById('borrowSelect');
+            const returnSelect = document.getElementById('returnSelect');
+
+            booksList.innerHTML = '';
+            borrowSelect.innerHTML = '<option value="">-- Select a book --</option>';
+            returnSelect.innerHTML = '<option value="">-- Select a book --</option>';
+
+            const books = Array.from(library.books.entries());
+            books.forEach(([title, copies]) => {
+                const li = document.createElement('li');
+                li.className = 'book-item';
+                li.innerHTML = `
+                    <span><strong>${title}</strong></span>
+                    <span>${copies} copies available</span>
+                `;
+                booksList.appendChild(li);
+
+                if (copies > 0) {
+                    const option = document.createElement('option');
+                    option.value = title;
+                    option.textContent = title;
+                    borrowSelect.appendChild(option);
+                }
+            });
+
+            library.borrowedBooks.forEach(title => {
+                const option = document.createElement('option');
+                option.value = title;
+                option.textContent = title;
+                returnSelect.appendChild(option);
+            });
+        }
+
+        window.addBook = function() {
+            const title = document.getElementById('bookTitle').value.trim();
+            const copies = parseInt(document.getElementById('bookCopies').value);
+
+            if (!title) {
+                showMessage('Please enter a book title', 'error');
+                return;
+            }
+
+            if (copies < 1) {
+                showMessage('Number of copies must be at least 1', 'error');
+                return;
+            }
+
+            library.addBook(title, copies);
+            document.getElementById('bookTitle').value = '';
+            document.getElementById('bookCopies').value = '1';
+            showMessage(`Added ${copies} copies of "${title}"`, 'success');
+            updateUI();
+        };
+
+        window.borrowBook = function() {
+            const title = document.getElementById('borrowSelect').value;
+
+            if (!title) {
+                showMessage('Please select a book', 'error');
+                return;
+            }
+
+            library.borrowBook(title);
+            showMessage(`Borrowed "${title}"`, 'success');
+            updateUI();
+        };
+
+        window.returnBook = function() {
+            const title = document.getElementById('returnSelect').value;
+
+            if (!title) {
+                showMessage('Please select a book', 'error');
+                return;
+            }
+
+            library.returnBook(title);
+            showMessage(`Returned "${title}"`, 'success');
+            updateUI();
+        };
+
+        updateUI();
+    </script>
+</body>
+</html>
