@@ -101,6 +101,20 @@
             padding: 12px;
             border-radius: 4px;
             margin-bottom: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
         .message.success {
             background-color: #d4edda;
@@ -111,6 +125,7 @@
             background-color: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -251,9 +266,13 @@
                 return;
             }
 
-            library.borrowBook(title);
-            showMessage(`Borrowed "${title}"`, 'success');
-            updateUI();
+            try {
+                library.borrowBook(title);
+                showMessage(`Borrowed "${title}"`, 'success');
+                updateUI();
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
         };
 
         window.returnBook = function() {
@@ -264,9 +283,13 @@
                 return;
             }
 
-            library.returnBook(title);
-            showMessage(`Returned "${title}"`, 'success');
-            updateUI();
+            try {
+                library.returnBook(title);
+                showMessage(`Returned "${title}"`, 'success');
+                updateUI();
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
         };
 
         updateUI();

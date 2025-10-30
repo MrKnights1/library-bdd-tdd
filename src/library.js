@@ -2,6 +2,7 @@ export class Library {
   constructor() {
     this.books = new Map();
     this.borrowedBooks = [];
+    this.MAX_BORROW_LIMIT = 3;
   }
 
   addBook(title, copies) {
@@ -19,19 +20,29 @@ export class Library {
 
   borrowBook(title) {
     const availableCopies = this.getAvailableCopies(title);
-    if (availableCopies > 0) {
-      this.books.set(title, availableCopies - 1);
-      this.borrowedBooks.push(title);
+
+    if (availableCopies === 0) {
+      throw new Error('Book is not available');
     }
+
+    if (this.borrowedBooks.length >= this.MAX_BORROW_LIMIT) {
+      throw new Error(`Maximum borrow limit (${this.MAX_BORROW_LIMIT}) reached`);
+    }
+
+    this.books.set(title, availableCopies - 1);
+    this.borrowedBooks.push(title);
   }
 
   returnBook(title) {
     const index = this.borrowedBooks.indexOf(title);
-    if (index > -1) {
-      this.borrowedBooks.splice(index, 1);
-      const currentCopies = this.getAvailableCopies(title);
-      this.books.set(title, currentCopies + 1);
+
+    if (index === -1) {
+      throw new Error('You have not borrowed this book');
     }
+
+    this.borrowedBooks.splice(index, 1);
+    const currentCopies = this.getAvailableCopies(title);
+    this.books.set(title, currentCopies + 1);
   }
 
   getBorrowedBooksCount() {
