@@ -1,0 +1,25 @@
+{
+  "name": "library-bdd-tdd",
+  "version": "1.0.0",
+  "description": "BDD/TDD mini-application for library management",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:bdd": "cucumber-js",
+    "test:all": "bun run test && bun run test:bdd"
+  },
+  "keywords": [
+    "bdd",
+    "tdd",
+    "cucumber",
+    "testing"
+  ],
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.9.0",
+    "@vitest/coverage-v8": "^1.6.1",
+    "vitest": "^1.6.1"
+  }
+}
